@@ -21,7 +21,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import expo.modules.kotlin.views.AutoSizingComposable
 import expo.modules.kotlin.views.Direction
 import java.util.EnumSet
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.Modifier
+import expo.modules.kotlin.records.Record
+import java.io.Serializable
 
+class TextInputFocusEvent() : Record, Serializable
+class TextInputBlurEvent() : Record, Serializable
 
 data class TextInputProps(
   val defaultValue: MutableState<String> = mutableStateOf(""),
@@ -49,6 +55,8 @@ fun String.keyboardType(): KeyboardType {
 
 class TextInputView(context: Context, appContext: AppContext) : ExpoComposeView<TextInputProps>(context, appContext) {
   override val props = TextInputProps()
+  private val onBlur by EventDispatcher<TextInputBlurEvent>()
+  private val onFocus by EventDispatcher<TextInputFocusEvent>()
   private val onValueChanged by EventDispatcher()
 
   init {
@@ -68,7 +76,15 @@ class TextInputView(context: Context, appContext: AppContext) : ExpoComposeView<
             keyboardType = props.keyboardType.value.keyboardType(),
             autoCorrectEnabled = props.autocorrection.value,
           ),
-        )
+            modifier = Modifier
+            .onFocusChanged { focusState ->
+              if (focusState.isFocused) {
+                onFocus.invoke(TextInputFocusEvent())
+              } else {
+                onBlur.invoke(TextInputBlurEvent())
+              }
+            }
+        );
       }
     }
   }

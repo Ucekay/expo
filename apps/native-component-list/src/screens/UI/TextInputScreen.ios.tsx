@@ -12,7 +12,13 @@ export default function TextInputScreen() {
         <Text>{JSON.stringify(value)}</Text>
       </Section>
       <Section title="Text Input">
-        <TextInput autocorrection={false} defaultValue="hey there" onChangeText={setValue} />
+        <TextInput
+          autocorrection={false}
+          defaultValue="hey there"
+          onChangeText={setValue}
+          onBlur={() => console.log('blured')}
+          onFocus={() => console.log('focused')}
+        />
       </Section>
       <Section title="Multiline Text Input">
         <TextInput

@@ -1,5 +1,5 @@
-import SwiftUI
 import ExpoModulesCore
+import SwiftUI
 
 final class TextInputProps: ExpoSwiftUI.ViewProps {
   @Field var defaultValue: String = ""
@@ -8,6 +8,8 @@ final class TextInputProps: ExpoSwiftUI.ViewProps {
   @Field var numberOfLines: Int?
   @Field var keyboardType: String = "default"
   @Field var autocorrection: Bool = true
+  var onFieldBlur = EventDispatcher()
+  var onFieldFocus = EventDispatcher()
   var onValueChanged = EventDispatcher()
 }
 
@@ -44,14 +46,15 @@ func getKeyboardType(_ keyboardType: String?) -> UIKeyboardType {
 
 func allowMultiLine() -> Bool {
   #if os(tvOS)
-  return false
+    return false
   #else
-  return true
+    return true
   #endif
 }
 
 struct TextInputView: ExpoSwiftUI.View {
   @ObservedObject var props: TextInputProps
+  @FocusState private var isFocused: Bool
   @State private var value: String = ""
 
   init(props: TextInputProps) {
@@ -73,6 +76,14 @@ struct TextInputView: ExpoSwiftUI.View {
         }
         .keyboardType(getKeyboardType(props.keyboardType))
         .autocorrectionDisabled(!props.autocorrection)
+        .focused($isFocused)
+        .onChange(of: isFocused) { newFocusState in
+          if newFocusState {
+            props.onFieldFocus()
+          } else {
+            props.onFieldBlur()
+          }
+        }
     } else {
       // Fallback on earlier versions
       Text("Unsupported iOS version. Please update your iOS version to use this feature.")

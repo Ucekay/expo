@@ -14,9 +14,17 @@ export type TextInputProps = {
      */
     defaultValue?: string;
     /**
+     * Callback that is called when the text input is blurred.
+     */
+    onBlur?: () => void;
+    /**
      * A callback triggered when user types in text into the TextInput.
      */
     onChangeText: (value: string) => void;
+    /**
+     * Callback that is called when the text input is focused.
+     */
+    onFocus?: () => void;
     /**
      * If true, the text input can be multiple lines.
      * While the content will wrap, there's no keyboard button to insert a new line.

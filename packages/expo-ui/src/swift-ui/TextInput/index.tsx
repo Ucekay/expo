@@ -1,7 +1,7 @@
 import { requireNativeView } from 'expo';
-import { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
-import { ViewEvent } from '../../types';
+import type { ViewEvent } from '../../types';
 import { Host } from '../Host';
 
 /**
@@ -15,9 +15,17 @@ export type TextInputProps = {
    */
   defaultValue?: string;
   /**
+   * Callback that is called when the text input is blurred.
+   */
+  onBlur?: () => void;
+  /**
    * A callback triggered when user types in text into the TextInput.
    */
   onChangeText: (value: string) => void;
+  /**
+   * Callback that is called when the text input is focused.
+   */
+  onFocus?: () => void;
   /**
    * If true, the text input can be multiple lines.
    * While the content will wrap, there's no keyboard button to insert a new line.
@@ -68,10 +76,12 @@ export type TextInputProps = {
   autocorrection?: boolean;
 };
 
-export type NativeTextInputProps = Omit<TextInputProps, 'onChangeText'> & {} & ViewEvent<
-    'onValueChanged',
-    { value: string }
-  >;
+export type NativeTextInputProps = Omit<
+  TextInputProps,
+  'onChangeText' | 'onFocus' | 'onBlur'
+> & {} & ViewEvent<'onValueChanged', { value: string }> &
+  ViewEvent<'onFieldBlur', void> &
+  ViewEvent<'onFieldFocus', void>;
 
 // We have to work around the `role` and `onPress` props being reserved by React Native.
 const TextInputNativeView: React.ComponentType<NativeTextInputProps> = requireNativeView(
@@ -85,6 +95,8 @@ const TextInputNativeView: React.ComponentType<NativeTextInputProps> = requireNa
 function transformTextInputProps(props: TextInputProps): NativeTextInputProps {
   return {
     ...props,
+    onFieldBlur: props.onBlur,
+    onFieldFocus: props.onFocus,
     onValueChanged: (event) => {
       props.onChangeText?.(event.nativeEvent.value);
     },

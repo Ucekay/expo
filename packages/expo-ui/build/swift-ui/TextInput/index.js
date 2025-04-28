@@ -8,6 +8,8 @@ const TextInputNativeView = requireNativeView('ExpoUI', 'TextInputView');
 function transformTextInputProps(props) {
     return {
         ...props,
+        onFieldBlur: props.onBlur,
+        onFieldFocus: props.onFocus,
         onValueChanged: (event) => {
             props.onChangeText?.(event.nativeEvent.value);
         },
